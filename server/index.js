@@ -7,7 +7,7 @@ const app = express();
 
 // middleware
 app.use(cors({
-  origin: "http://localhost:5173", // port Vite
+  origin: "http://localhost:3000", // port Vite
   credentials: true
 }));
 
@@ -21,7 +21,7 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "API OK" });
 });
 
-const authRoutes = require("./routes/auth.routes");
+const authRoutes = require("./routes/auth.routes.js");
 
 // API auth
 app.use("/api/auth", authRoutes);

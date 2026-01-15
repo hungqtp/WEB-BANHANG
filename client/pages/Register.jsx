@@ -1,13 +1,12 @@
 import { useState } from "react";
+import AuthLayout from "../components/AuthLayout";
 
 function Register() {
   const [form, setForm] = useState({
-    username: "",
+    name: "",
     email: "",
     password: ""
   });
-
-  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -31,41 +30,93 @@ function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage(data.message || "Đăng ký thất bại");
+        alert(data.message || "Đăng ký thất bại");
         return;
       }
 
-      setMessage("🎉 Đăng ký thành công!");
-      console.log("User:", data);
+      alert("Đăng ký thành công 🎉");
+      console.log(data);
 
-    } catch (err) {
-      setMessage("❌ Lỗi kết nối server");
+    } catch (error) {
+      console.error(error);
+      alert("Không kết nối được server");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="username"
-        placeholder="Username"
-        onChange={handleChange}
-      />
-      <input
-        name="email"
-        placeholder="Email"
-        onChange={handleChange}
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        onChange={handleChange}
-      />
+    <AuthLayout
+      left={
+        <>
+          <h2 style={{ fontSize: 32, fontWeight: "bold" }}>
+            Chào mừng bạn!
+          </h2>
+          <p>
+            Tạo tài khoản để mua sắm và quản lý đơn hàng dễ dàng.
+          </p>
+          <span style={{ fontSize: 14 }}>
+            © 2024 AccessoPro
+          </span>
+        </>
+      }
+    >
+      <h2 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
+        Đăng ký tài khoản
+      </h2>
 
-      <button type="submit">Đăng ký</button>
-      <p>{message}</p>
-    </form>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="name"
+          placeholder="Tên"
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
+
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
+
+        <input
+          name="password"
+          type="password"
+          placeholder="Mật khẩu"
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
+
+        <button style={btnStyle} type="submit">
+          Đăng ký
+        </button>
+      </form>
+    </AuthLayout>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px 14px",
+  marginBottom: 16,
+  borderRadius: 10,
+  border: "1px solid #ddd",
+  outline: "none",
+  fontSize: 14
+};
+
+const btnStyle = {
+  width: "100%",
+  padding: "12px",
+  background: "#ec4899",
+  color: "#fff",
+  border: "none",
+  borderRadius: 10,
+  fontSize: 16,
+  cursor: "pointer"
+};
 
 export default Register;

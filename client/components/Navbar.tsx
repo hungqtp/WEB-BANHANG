@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -61,19 +60,26 @@ const Navbar: React.FC = () => {
 
             {user ? (
               <div className="relative group">
-                <button className="flex items-center space-x-2 text-gray-700 font-medium">
+                {/* 1. Mở rộng vùng nhận hover của button bằng padding dọc (py-2) */}
+                <button className="flex items-center space-x-2 text-gray-700 font-medium py-2">
                   <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="hidden lg:block truncate max-w-[100px]">{user.name}</span>
                 </button>
-                <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-xl border border-gray-100 hidden group-hover:block z-[100]">
-                  {user.role === UserRole.ADMIN && (
-                    <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Quản trị</Link>
-                  )}
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Hồ sơ</Link>
-                  <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Đơn hàng</Link>
-                  <button onClick={logout} className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Đăng xuất</button>
+
+                {/* 2. Menu được bọc trong một thẻ div có pt-2 (padding top) thay vì margin-top */}
+                <div className="absolute right-0 w-48 pt-2 hidden group-hover:block z-[100]">
+                  {/* 3. Phần khung trắng bên trong */}
+                  <div className="py-2 bg-white rounded-md shadow-xl border border-gray-100 overflow-hidden">
+                    {user.role === UserRole.ADMIN && (
+                      <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Quản trị</Link>
+                    )}
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Hồ sơ</Link>
+                    <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Đơn hàng</Link>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button onClick={logout} className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Đăng xuất</button>
+                  </div>
                 </div>
               </div>
             ) : (

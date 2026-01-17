@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, Product, ProductVariant } from '../types';
 
@@ -20,7 +19,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const savedCart = localStorage.getItem('app_cart');
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      try { setCart(JSON.parse(savedCart)); } catch (e) { setCart([]); }
     }
   }, []);
 
@@ -28,51 +27,61 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('app_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product, variant?: ProductVariant, quantity: number = 1) => {
+  const addToCart = (product: any, variant?: ProductVariant, quantity: number = 1) => {
+    if (!product) return;
+
     setCart(prev => {
-      const variantId = variant?.id;
-      const existing = prev.find(item => item.productId === product.id && item.variantId === variantId);
+      const pId = product.id || product._id;
+      const vId = variant?.id || 'default';
+      const existing = prev.find(item => item.productId === pId && item.variantId === vId);
       
-      const price = product.basePrice + (variant?.priceDelta || 0);
-      const stockLimit = variant ? variant.stock : product.stock;
+      // LẤY GIÁ THÔNG MINH: Kiểm tra cả 2 trường price và basePrice
+      const rawPrice = product.price || product.basePrice || 0;
+      const finalPrice = Number(rawPrice) + (variant?.priceDelta || 0);
+      
+      const stockLimit = variant ? variant.stock : (product.stock || 0);
+
+      // LẤY ẢNH THÔNG MINH: Kiểm tra cả image (chuỗi) và images (mảng)
+      const itemImage = product.image || (product.images && product.images[0]) || 'https://via.placeholder.com/150';
 
       if (existing) {
-        const newQty = Math.min(existing.quantity + quantity, stockLimit);
         return prev.map(item => 
-          (item.productId === product.id && item.variantId === variantId) 
-          ? { ...item, quantity: newQty } 
+          (item.productId === pId && item.variantId === vId) 
+          ? { ...item, quantity: Math.min(item.quantity + quantity, stockLimit), price: finalPrice } 
           : item
         );
       }
 
       const newItem: CartItem = {
-        productId: product.id,
-        variantId,
+        productId: pId,
+        variantId: vId,
         quantity: Math.min(quantity, stockLimit),
-        name: `${product.name}${variant ? ` (${variant.name})` : ''}`,
-        image: product.images[0],
-        price,
+        name: product.name,
+        variantName: variant?.name || 'Mặc định', 
+        image: itemImage,
+        price: finalPrice,
         stock: stockLimit
       };
+      
       return [...prev, newItem];
     });
   };
 
-  const removeFromCart = (productId: string, variantId?: string) => {
-    setCart(prev => prev.filter(item => !(item.productId === productId && item.variantId === variantId)));
+  const removeFromCart = (pId: string, vId?: string) => {
+    const variantId = vId || 'default';
+    setCart(prev => prev.filter(item => !(item.productId === pId && item.variantId === variantId)));
   };
 
-  const updateQuantity = (productId: string, variantId: string | undefined, quantity: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.productId === productId && item.variantId === variantId) {
-        return { ...item, quantity: Math.max(1, Math.min(quantity, item.stock)) };
-      }
-      return item;
-    }));
+  const updateQuantity = (pId: string, vId: string | undefined, qty: number) => {
+    const variantId = vId || 'default';
+    setCart(prev => prev.map(item => 
+      (item.productId === pId && item.variantId === variantId) 
+      ? { ...item, quantity: Math.max(1, Math.min(qty, item.stock)) } 
+      : item
+    ));
   };
 
   const clearCart = () => setCart([]);
-
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -85,8 +94,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within a CartProvider');
   return context;
 };

@@ -56,6 +56,7 @@ export interface CartItem {
   image: string;
   price: number;
   stock: number;
+  variantName?: string;
 }
 
 export interface ShippingInfo {

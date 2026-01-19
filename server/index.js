@@ -5,7 +5,7 @@ const connectDB = require("./config/db");
 const cors = require("cors");
 const http = require("http"); // 1. Thêm cái này
 const { Server } = require("socket.io"); // 2. Thêm cái này
-
+const Order = require('./models/Order');
 const app = express();
 const server = http.createServer(app); // 3. Tạo server tích hợp
 
@@ -23,14 +23,35 @@ const authRoutes = require("./routes/auth.routes.js");
 
 // middleware
 app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true
+    origin: 'http://localhost:3000', // Cho phép Frontend của ông
+    methods: ['GET', 'POST'],
+    credentials: true
 }));
-
 app.use(express.json());
 
 // connect db
 connectDB();
+
+// API tạo đơn hàng mới
+app.post('/api/orders', async (req, res) => {
+  try {
+    const newOrder = new Order(req.body);
+    const savedOrder = await newOrder.save();
+    res.status(201).json(savedOrder);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi khi lưu đơn hàng!", error: err });
+  }
+});
+
+// API lấy toàn bộ đơn hàng (Dùng cho trang Admin sau này)
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 }); // Đơn mới nhất hiện lên đầu
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng!" });
+  }
+});
 
 // API test
 app.get("/api/test", (req, res) => {
@@ -55,6 +76,8 @@ app.get('/api/products/search', async (req, res) => {
 // API routes
 app.use("/api/auth", authRoutes);
 app.use('/api/products', productRoutes);
+const orderRoutes = require('./utils/vnpay'); // Đảm bảo đúng đường dẫn file vừa sửa ở Bước 1
+app.use('/api/orders', orderRoutes);
 
 
 // =======================

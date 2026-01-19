@@ -5,6 +5,8 @@ import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import ChatBox from './components/ChatBox';
+import Profile from './pages/Profile';
+
 
 import Home from './pages/Home';
 import ProductList from './pages/ProductList';
@@ -34,6 +36,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} /> 
               <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+              <Route path="/profile" element={<Profile />} />
 
               <Route path="/checkout" element={
                 <ProtectedRoute>

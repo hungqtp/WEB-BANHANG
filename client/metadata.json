@@ -1,0 +1,7 @@
+{
+  "name": "E-Commerce Pro - Cute Accessories Store",
+  "description": "A feature-rich e-commerce platform for accessories like plushies, keychains, and postcards, featuring guest/customer/admin roles, product variants, and inventory management.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
